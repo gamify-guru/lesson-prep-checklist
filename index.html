@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Чек-лист подготовки уроков с ИИ</title>
+<style>
+:root {
+  --emerald: #059669;
+  --emerald-light: #10b981;
+  --lavender: #8b5cf6;
+  --lavender-light: #c4b5fd;
+  --bg: #f8f5ff;
+  --card: #ffffff;
+  --text: #1f2937;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  background: linear-gradient(135deg, #ecfdf5 0%, #f5f3ff 100%);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.container {
+  max-width: 480px;
+  width: 100%;
+  background: var(--card);
+  border-radius: 24px;
+  box-shadow: 0 10px 40px rgba(139, 92, 246, 0.12);
+  overflow: hidden;
+}
+.header {
+  background: linear-gradient(135deg, var(--emerald), var(--lavender));
+  color: white;
+  padding: 28px 24px;
+  text-align: center;
+}
+.header h1 { font-size: 1.45rem; font-weight: 700; margin-bottom: 6px; }
+.header p { opacity: 0.9; font-size: 0.95rem; }
+.content { padding: 24px; }
+.question { display: none; }
+.question.active { display: block; }
+.question h2 { font-size: 1.15rem; margin-bottom: 16px; color: #111827; }
+.options { display: flex; flex-direction: column; gap: 10px; }
+.option {
+  padding: 14px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 14px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+}
+.option:hover { border-color: var(--lavender-light); background: #f5f3ff; }
+.option.selected {
+  border-color: var(--emerald);
+  background: #ecfdf5;
+  color: #065f46;
+  font-weight: 500;
+}
+.nav { display: flex; justify-content: space-between; margin-top: 24px; }
+button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.btn-next {
+  background: var(--emerald);
+  color: white;
+  margin-left: auto;
+}
+.btn-next:disabled { background: #d1d5db; cursor: not-allowed; }
+.btn-copy {
+  background: var(--lavender);
+  color: white;
+  width: 100%;
+  margin-top: 12px;
+}
+.result { display: none; }
+.result.active { display: block; }
+.checklist {
+  background: #faf5ff;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 16px 0;
+}
+.checklist ol { padding-left: 20px; }
+.checklist li {
+  margin-bottom: 14px;
+  line-height: 1.45;
+}
+.checklist strong { color: var(--emerald); }
+.progress {
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--emerald), var(--lavender));
+  width: 0%;
+  transition: width 0.3s;
+}
+.note { font-size: 0.85rem; color: #6b7280; margin-top: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Чек-лист на вечер</h1>
+    <p>Как собрать уроки с ИИ за 90 минут</p>
+  </div>
+  <div class="content">
+    <div class="progress"><div class="progress-bar" id="progress"></div></div>
+
+    <div class="question active" data-step="1">
+      <h2>1. С чего ты обычно начинаешь готовить урок?</h2>
+      <div class="options">
+        <div class="option" data-value="content">С темы или параграфа учебника</div>
+        <div class="option" data-value="quest">С идеи квеста или сюжета</div>
+        <div class="option" data-value="goal">С того, что ученик сможет сделать</div>
+      </div>
+    </div>
+
+    <div class="question" data-step="2">
+      <h2>2. Что для тебя важнее в уроке?</h2>
+      <div class="options">
+        <div class="option" data-value="pretty">Красивый сюжет и оформление</div>
+        <div class="option" data-value="action">Понятное действие ученика</div>
+        <div class="option" data-value="emotion">Яркая эмоция в ключевой точке</div>
+      </div>
+    </div>
+
+    <div class="question" data-step="3">
+      <h2>3. Сколько времени обычно есть на подготовку вечером?</h2>
+      <div class="options">
+        <div class="option" data-value="little">Меньше часа</div>
+        <div class="option" data-value="medium">1–1,5 часа</div>
+        <div class="option" data-value="much">Больше двух часов</div>
+      </div>
+    </div>
+
+    <div class="question" data-step="4">
+      <h2>4. Что ты чаще вырезаешь в последний момент?</h2>
+      <div class="options">
+        <div class="option" data-value="story">Лишний сюжет и героев</div>
+        <div class="option" data-value="details">Мелкие детали оформления</div>
+        <div class="option" data-value="nothing">Почти ничего — жалко</div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <button class="btn-next" id="nextBtn" disabled>Дальше</button>
+    </div>
+
+    <div class="result" id="result">
+      <h2 style="margin-bottom: 8px;">Твой чек-лист на вечер</h2>
+      <p style="color:#6b7280; margin-bottom:16px;">Сохрани и используй, когда будешь готовить уроки с ИИ.</p>
+      <div class="checklist" id="checklistBox">
+        <ol>
+          <li><strong>Цель в действии.</strong> Напиши: «После урока ученик сможет ______ перед ______».</li>
+          <li><strong>Механика, а не картинка.</strong> Определи, что ученик делает в ключевой точке.</li>
+          <li><strong>Пик эмоции.</strong> Зафиксируй момент «Ах вот оно что» или «Я это собрал сам».</li>
+          <li><strong>Шаблон, а не мир с нуля.</strong> Возьми рамку и наполни её под свою цель.</li>
+          <li><strong>Три варианта от ИИ.</strong> Попроси три сборки одного задания. Выбери одну.</li>
+          <li><strong>Вырезать половину.</strong> Убери всё, что не меняет действие ученика.</li>
+        </ol>
+      </div>
+      <button class="btn-copy" onclick="copyChecklist()">Скопировать чек-лист</button>
+      <p class="note">Можно сохранить в заметки или отправить себе в Telegram.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = document.querySelectorAll('.question');
+const nextBtn = document.getElementById('nextBtn');
+const progress = document.getElementById('progress');
+let current = 0;
+const answers = {};
+
+function updateProgress() {
+  progress.style.width = ((current) / questions.length * 100) + '%';
+}
+
+document.querySelectorAll('.option').forEach(opt => {
+  opt.addEventListener('click', () => {
+    const parent = opt.closest('.question');
+    parent.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+    opt.classList.add('selected');
+    answers[parent.dataset.step] = opt.dataset.value;
+    nextBtn.disabled = false;
+  });
+});
+
+nextBtn.addEventListener('click', () => {
+  if (current < questions.length - 1) {
+    questions[current].classList.remove('active');
+    current++;
+    questions[current].classList.add('active');
+    nextBtn.disabled = true;
+    updateProgress();
+  } else {
+    questions[current].classList.remove('active');
+    document.querySelector('.nav').style.display = 'none';
+    document.getElementById('result').classList.add('active');
+    progress.style.width = '100%';
+  }
+});
+
+function copyChecklist() {
+  const text = `Чек-лист подготовки уроков с ИИ
+
+1. Цель в действии. Напиши: «После урока ученик сможет ______ перед ______».
+2. Механика, а не картинка. Определи, что ученик делает в ключевой точке.
+3. Пик эмоции. Зафиксируй момент «Ах вот оно что» или «Я это собрал сам».
+4. Шаблон, а не мир с нуля. Возьми рамку и наполни её под свою цель.
+5. Три варианта от ИИ. Попроси три сборки одного задания. Выбери одну.
+6. Вырезать половину. Убери всё, что не меняет действие ученика.`;
+  navigator.clipboard.writeText(text).then(() => {
+    alert('Чек-лист скопирован');
+  });
+}
+
+updateProgress();
+</script>
+</body>
+</html>
